@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: kmrl-backend-api
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+      cd data && python generate_synthetic_data.py && cd ..
+      echo "Build completed successfully"
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kmrl-database
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.6
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: OPTIMIZATION_TIMEOUT_SECONDS
+        value: 300
+    
+  - type: web
+    name: kmrl-frontend-dashboard
+    env: static
+    plan: free
+    region: oregon
+    buildCommand: |
+      echo "Preparing frontend files..."
+      # Update API URLs for production
+      sed -i 's|http://localhost:8000|https://kmrl-backend-api.onrender.com|g' frontend/js/dashboard.js
+      echo "Frontend build completed"
+    staticPublishPath: ./frontend
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: kmrl-database
+    databaseName: kmrl_optimization
+    user: kmrl
+    plan: free

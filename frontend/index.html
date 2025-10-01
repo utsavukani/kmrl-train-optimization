@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMRL Train Induction Planning System - SIH25081</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Heroicons CDN -->
+    <script src="https://unpkg.com/@heroicons/react@2.0.18/24/outline/index.js" type="module"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-service {
+            background-color: #10B981;
+        }
+
+        .status-standby {
+            background-color: #F59E0B;
+        }
+
+        .status-maintenance {
+            background-color: #EF4444;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .table-hover:hover {
+            background-color: #F9FAFB;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation Header -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img class="h-10 w-auto"
+                            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI0Y5RkFGQiIvPgo8cGF0aCBkPSJNOCA4SDE2VjMySDhWOFoiIGZpbGw9IiM2NjdFRUEiLz4KPHA    ="
+                            alt="KMRL Logo">
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-xl font-bold">KMRL AI Optimization System</h1>
+                        <p class="text-sm opacity-90">SIH25081 - Train Induction Planning & Scheduling</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="system-status" class="flex items-center space-x-2">
+                        <div class="status-indicator bg-green-400"></div>
+                        <span class="text-sm">System Online</span>
+                    </div>
+                    <div class="text-sm">
+                        <div id="current-time"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Alert Notifications -->
+        <div id="notifications" class="mb-6"></div>
+
+        <!-- KPI Dashboard Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Fleet Availability Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Fleet Availability</p>
+                        <p id="fleet-availability" class="text-3xl font-bold text-gray-900">--</p>
+                        <p class="text-sm text-green-600">+2.1% from last week</p>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-full">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Trains Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Service Ready</p>
+                        <p id="service-trains" class="text-3xl font-bold text-gray-900">--/25</p>
+                        <p class="text-sm text-gray-500">Trains in service</p>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Alerts Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Maintenance Alerts</p>
+                        <p id="maintenance-alerts" class="text-3xl font-bold text-gray-900">--</p>
+                        <p class="text-sm text-yellow-600">3 critical, 2 pending</p>
+                    </div>
+                    <div class="p-3 bg-yellow-100 rounded-full">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Score Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Optimization Score</p>
+                        <p id="optimization-score" class="text-3xl font-bold text-gray-900">--</p>
+                        <p class="text-sm text-green-600">Excellent performance</p>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Train Status Table (Left 2 columns) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md card-shadow">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Train Fleet Status</h3>
+                        <div class="flex items-center space-x-3">
+                            <button id="refresh-data"
+                                class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                                Refresh
+                            </button>
+                            <button id="run-optimization"
+                                class="px-4 py-2 btn-primary text-white text-sm rounded-md hover:opacity-90">
+                                🚀 Run Optimization
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Train ID
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        Assignment</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service
+                                        Hours</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        Confidence</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="train-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Train rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="loading-indicator" class="p-8 text-center hidden">
+                        <div class="inline-flex items-center">
+                            <div class="loading-spinner mr-3"></div>
+                            <span class="text-gray-600">Loading train data...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="space-y-6">
+                <!-- Optimization Controls -->
+                <div class="bg-white rounded-lg shadow-md card-shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Optimization Controls</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Target Date</label>
+                            <input type="date" id="target-date"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Min Service Trains</label>
+                            <input type="range" id="min-service-trains" min="15" max="25" value="18" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>15</span>
+                                <span id="min-service-value">18</span>
+                                <span>25</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Optimization Objectives</label>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Service Priority</span>
+                                    <input type="range" id="service-weight" min="0" max="100" value="50" class="w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Mileage Balance</span>
+                                    <input type="range" id="mileage-weight" min="0" max="100" value="30" class="w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Branding</span>
+                                    <input type="range" id="branding-weight" min="0" max="100" value="20" class="w-20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Chart -->
+                <div class="bg-white rounded-lg shadow-md card-shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Fleet Performance</h3>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="performance-chart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Optimizations -->
+                <div class="bg-white rounded-lg shadow-md card-shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Recent Optimizations</h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="optimization-history" class="space-y-3">
+                            <!-- Optimization history will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What-If Simulation Modal -->
+        <div id="simulation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">What-If Simulation</h3>
+                        <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Train to Modify</label>
+                                <select id="simulation-train"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                    <option value="">Select a train...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Force Assignment</label>
+                                <select id="simulation-assignment"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                    <option value="SERVICE">Service</option>
+                                    <option value="STANDBY">Standby</option>
+                                    <option value="MAINTENANCE">Maintenance</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button id="cancel-simulation"
+                                    class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                                <button id="run-simulation"
+                                    class="px-4 py-2 text-sm text-white btn-primary rounded-md hover:opacity-90">
+                                    Run Simulation
+                                </button>
+                            </div>
+                        </div>
+                        <div id="simulation-results" class="mt-4 hidden">
+                            <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                                <h4 class="text-sm font-medium text-blue-800">Simulation Results</h4>
+                                <p id="simulation-summary" class="text-sm text-blue-700 mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explanation Panel -->
+        <div id="explanation-panel" class="mt-6 bg-white rounded-lg shadow-md card-shadow hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Optimization Explanation</h3>
+            </div>
+            <div class="p-6">
+                <div id="explanation-content" class="space-y-4">
+                    <!-- Explanations will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    © 2024 KMRL AI Optimization System - SIH25081
+                </div>
+                <div class="text-sm text-gray-500">
+                    Powered by CP-SAT + Genetic Algorithm + ML Predictions
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load Dashboard JavaScript -->
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

@@ -12,7 +12,7 @@
 
 class KMRLDashboard {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8000/api/v1';
+        this.apiBaseUrl = 'https://kmrl-train-optimization.onrender.com';
         this.trainData = [];
         this.optimizationResults = null;
         this.performanceChart = null;
@@ -699,3 +699,4 @@ window.dashboard = {
     openSimulationModal: (trainId) => dashboard.openSimulationModal(trainId),
     showTrainDetails: (trainId) => dashboard.showTrainDetails(trainId)
 }; 
+
